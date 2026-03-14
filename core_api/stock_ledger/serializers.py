@@ -28,8 +28,4 @@ class StockMovementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StockMovement
-        fields = [
-            'id', 'product', 'product_name', 'product_sku', 'movement_type', 
-            'status', 'reference', 'source', 'source_name', 'destination', 
-            'dest_name', 'quantity', 'date', 'user', 'user_name'
-        ]
+        fields = '__all__'
