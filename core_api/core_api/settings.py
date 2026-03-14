@@ -1,3 +1,5 @@
+ANY_VARIABLE_NAME = "" # Leave it empty or use a placeholder  
+
 """
 Django settings for core_api project.
 
@@ -10,11 +12,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-import os
 from pathlib import Path
-from dotenv import load_dotenv
-import dj_database_url
-load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,9 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -58,7 +60,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'core_api.urls'
@@ -85,11 +86,10 @@ WSGI_APPLICATION = 'core_api.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        # This looks for a DATABASE_URL env var. If it doesn't find one, it uses SQLite.
-        default='sqlite:///db.sqlite3',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -150,3 +150,54 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+#from pathlib import Path
+
+from decouple import config # <-- Add this
+
+from datetime import timedelta
+
+
+
+# Build paths
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+
+# --- SECURITY ---
+
+# This now pulls from your .env file safely
+
+SECRET_KEY = config('SECRET_KEY')
+
+DEBUG = config('DEBUG', default=True, cast=bool)
+
+
+
+ALLOWED_HOSTS = ['*'] # Useful for hackathon network sharing
+
+
+
+# ... (Keep INSTALLED_APPS and MIDDLEWARE as they are) ...
+
+
+
+# ── Brevo API Configuration (Solar Drishti Style) ─────
+
+# We use the API key directly via decouple
+
+BREVO_API_KEY = config('BREVO_API_KEY')
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+
+
+# We set this to dummy because we will use a custom utility 
+
+# to send emails via the Brevo SDK instead of standard SMTP.
+
+EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+
+
+
+# ... (Keep the rest of your JWT and REST_FRAMEWORK settings) ... this should i replace to like from email_backend to password like instead use this
