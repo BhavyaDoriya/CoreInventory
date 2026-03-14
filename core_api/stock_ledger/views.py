@@ -1,3 +1,4 @@
+from django.db.models import F
 from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
@@ -44,13 +45,15 @@ class StockMovementViewSet(viewsets.ModelViewSet):
         pass
 
 class DashboardViewSet(viewsets.ViewSet):
-    """Feeds the React Dashboard KPI Cards instantly"""
     permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def kpis(self, request):
         total_products = Product.objects.count()
-        low_stock = Product.objects.filter(current_stock__lt=10).count() 
+        
+        # SMART CALCULATION: Compares current_stock directly against its own reorder_level!
+        low_stock = Product.objects.filter(current_stock__lte=F('reorder_level')).count() 
+        
         total_movements = StockMovement.objects.count()
         
         return Response({

@@ -3,28 +3,32 @@ from django.contrib.auth.models import User
 
 class Warehouse(models.Model):
     """The PDF mentions 'Warehouse' specifically for filtering."""
+    short_code = models.CharField(max_length=20, blank=True, null=True)
     name = models.CharField(max_length=100)
     address = models.TextField(blank=True)
-
     def __str__(self):
         return self.name
 
 class Location(models.Model):
     """Specific spots inside a Warehouse (e.g., Shelf A, Bin 10)."""
+    short_code = models.CharField(max_length=20, blank=True, null=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='locations')
     name = models.CharField(max_length=100)
     is_internal = models.BooleanField(default=True, help_text="False for Suppliers/Customers")
-
     def __str__(self):
         return f"{self.warehouse.name} - {self.name}"
 
 class Product(models.Model):
-    """Core requirements: Name, SKU, Category, UoM."""
     name = models.CharField(max_length=200)
     sku = models.CharField(max_length=50, unique=True)
     category = models.CharField(max_length=100)
-    unit_of_measure = models.CharField(max_length=20, help_text="e.g., kg, pcs, liters")
-    current_stock = models.IntegerField(default=0) # Quick lookup for Dashboard
+    unit_of_measure = models.CharField(max_length=20)
+    current_stock = models.IntegerField(default=0)
+    reorder_level = models.IntegerField(default=10)
+    
+    # --- NEW FIELDS FROM DIAGRAM ---
+    description = models.TextField(blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"[{self.sku}] {self.name}"
@@ -61,6 +65,9 @@ class StockMovement(models.Model):
     quantity = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True) # PDF Requirement: Filter by Date
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
+    
+    contact = models.CharField(max_length=100, blank=True, null=True, help_text="Vendor or Customer name")
+    schedule_date = models.DateField(blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True, help_text="Reason for adjustment or general notes")
     def __str__(self):
         return f"{self.movement_type} - {self.product.sku} ({self.quantity})"
