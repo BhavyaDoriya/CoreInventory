@@ -98,15 +98,16 @@ class ForgotPasswordView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        # Delete old unused OTPs
-        PasswordResetOTP.objects.filter(user=user, is_used=False).delete()
+        try:
+            # Delete old unused OTPs
+            PasswordResetOTP.objects.filter(user=user, is_used=False).delete()
 
-        # Generate new OTP
-        otp = PasswordResetOTP.generate_otp()
-        PasswordResetOTP.objects.create(user=user, otp=otp)
+            # Generate new OTP
+            otp = PasswordResetOTP.generate_otp()
+            PasswordResetOTP.objects.create(user=user, otp=otp)
 
-        # --- PROFESSIONAL COMPANY EMAIL TEMPLATE ---
-        subject = 'CoreInventory — Password Reset Request'
+            # --- PROFESSIONAL COMPANY EMAIL TEMPLATE ---
+            subject = 'CoreInventory — Password Reset Request'
         year = timezone.now().year if hasattr(timezone, 'now') else 2026
         
         html_content = f'''
