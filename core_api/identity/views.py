@@ -106,8 +106,8 @@ class ForgotPasswordView(APIView):
             otp = PasswordResetOTP.generate_otp()
             PasswordResetOTP.objects.create(user=user, otp=otp)
 
-            # --- PROFESSIONAL COMPANY EMAIL TEMPLATE ---
-            subject = 'CoreInventory — Password Reset Request'            year = timezone.now().year if hasattr(timezone, 'now') else 2026
+            subject = 'CoreInventory — Password Reset Request'
+            year = timezone.now().year if hasattr(timezone, 'now') else 2026
             
             html_content = f'''
             <!DOCTYPE html>
