@@ -61,7 +61,7 @@ function NewLocationModal({ onClose, onCreated, warehouses }) {
           <div>
             <label className="block text-xs theme-text-faint mb-1.5 font-bold uppercase tracking-wider">Warehouse *</label>
             <select className="input w-full" value={form.warehouse} onChange={e => set('warehouse', e.target.value)}>
-              <option value="">Select Facility...</option>
+              <option value="">Select Warehouse...</option>
               {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
           </div>
@@ -159,7 +159,7 @@ function EditLocationModal({ location, onClose, onUpdated, warehouses }) {
           <div>
             <label className="block text-xs theme-text-faint mb-1.5 font-bold uppercase tracking-wider">Warehouse *</label>
             <select className="input w-full" value={form.warehouse} onChange={e => set('warehouse', e.target.value)}>
-              <option value="">Select Facility...</option>
+              <option value="">Select Warehouse...</option>
               {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
             </select>
           </div>
