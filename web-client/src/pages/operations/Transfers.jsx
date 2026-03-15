@@ -168,7 +168,7 @@ function NewTransferModal({ onClose, onCreated }) {
                   icon={<MapPin size={14} />}
                   value={form.destination}
                   setter={(v) => set('destination', v)}
-                  options={locations.filter(l => l.id !== Number(form.source)).map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                  options={locations.filter(l => l.id !== Number(form.source)).map(l => ({ id: l.id, name: l.name }))}
                   placeholder="Destination..."
                 />
               </div>
