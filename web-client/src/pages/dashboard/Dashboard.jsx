@@ -347,7 +347,8 @@ export default function Dashboard() {
           <div className="space-y-3">
             {[
               { icon: CheckCircle2, label: 'Pending Receipts', val: data?.pending_receipts || 0, color: 'text-emerald-400' },
-              { icon: CheckCircle2, label: 'Scheduled Transfers', val: data?.scheduled_transfers || 0, color: 'text-blue-400' },
+              { icon: CheckCircle2, label: 'Pending Deliveries', val: data?.pending_deliveries || 0, color: 'text-blue-400' },
+              { icon: CheckCircle2, label: 'Scheduled Transfers', val: data?.scheduled_transfers || 0, color: 'text-purple-400' },
               { icon: Clock,        label: 'Out of Stock Items', val: data?.out_of_stock_count || 0, color: 'text-red-400' },
             ].map(({ icon: Icon, label, val, color }) => (
               <div key={label} className="flex items-center justify-between py-2.5 border-b theme-border-subtle last:border-0">
