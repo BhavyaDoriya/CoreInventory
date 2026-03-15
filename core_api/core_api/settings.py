@@ -198,3 +198,6 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 # Brevo API Key still available for specialized SDK use if needed
 BREVO_API_KEY = config('BREVO_API_KEY')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+# 7. Prevent Gunicorn Hang on SMTP timeouts
+EMAIL_TIMEOUT = 10

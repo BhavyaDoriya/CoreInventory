@@ -81,24 +81,24 @@ class ForgotPasswordView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        email = request.data.get('email', '').strip()
-
-        if not email:
-            return Response(
-                {'detail': 'Email is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Use .filter().first() to handle cases with duplicate emails safely
-        user = User.objects.filter(email__iexact=email).first()
-        if not user:
-            # Security: don't reveal if email exists
-            return Response(
-                {'detail': 'If this email exists, a reset code has been sent.'},
-                status=status.HTTP_200_OK
-            )
-
         try:
+            email = request.data.get('email', '').strip()
+
+            if not email:
+                return Response(
+                    {'detail': 'Email is required.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Use .filter().first() to handle cases with duplicate emails safely
+            user = User.objects.filter(email__iexact=email).first()
+            if not user:
+                # Security: don't reveal if email exists
+                return Response(
+                    {'detail': 'If this email exists, a reset code has been sent.'},
+                    status=status.HTTP_200_OK
+                )
+
             # Delete old unused OTPs
             PasswordResetOTP.objects.filter(user=user, is_used=False).delete()
 
@@ -106,10 +106,11 @@ class ForgotPasswordView(APIView):
             otp = PasswordResetOTP.generate_otp()
             PasswordResetOTP.objects.create(user=user, otp=otp)
 
-            subject = 'CoreInventory — Password Reset Request'
+            # --- PROFESSIONAL COMPANY EMAIL TEMPLATE ---
+            subject = 'CoreInventory - Password Reset Request'
             year = timezone.now().year if hasattr(timezone, 'now') else 2026
             
-            html_content = f'''
+            html_content = f"""
             <!DOCTYPE html>
             <html>
             <head>
@@ -169,9 +170,11 @@ class ForgotPasswordView(APIView):
                 </table>
             </body>
             </html>
-            '''
+            """
 
-            # Using standard Django send_mail which now uses Brevo SMTP
+            # Using standard Django send_mail
+            from django.core.mail import send_mail
+            from django.conf import settings
             send_mail(
                 subject=subject,
                 message=f"Your reset code is: {otp}",
@@ -181,28 +184,21 @@ class ForgotPasswordView(APIView):
                 fail_silently=False,
             )
             print(f"SMTP email sent successfully to {user.email}")
-
-        except Exception as e:
-            # Log the error to terminal for debugging
-            print("\n" + "!"*50)
-            print(f"CRITICAL: SMTP Error for {user.email}: {e}")
-            print("Check SMTP credentials and verified senders in Brevo dashboard.")
-            print("!"*50 + "\n")
             
-            # --- ROBUST FALLBACK (Console/Terminal Only) ---
-            print(f"\n\n[LOCAL RESET CODE] For user {user.username}: {otp}\n\n")
-            
-            # We return success anyway because revealing failure to visitor is bad UX
-            # and the developer can see the code in the terminal.
             return Response(
                 {'detail': 'If this email exists, a reset code has been sent.'},
                 status=status.HTTP_200_OK
             )
 
-        return Response(
-            {'detail': 'If this email exists, a reset code has been sent.'},
-            status=status.HTTP_200_OK
-        )
+        except Exception as e:
+            # Catch SMTP Errors, DB Errors, etc.
+            print("\n" + "!"*50)
+            print(f"CRITICAL: Error in ForgotPassword for {email}: {e}")
+            print("!"*50 + "\n")
+            return Response(
+                {'detail': f'Diagnostics Error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class VerifyResetCodeView(APIView):
     permission_classes = (AllowAny,)
