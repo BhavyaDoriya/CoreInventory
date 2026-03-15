@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../../services/AuthContext'
 import { authAPI } from '../../api'
 import {
   Boxes, Eye, EyeOff, AlertCircle,
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react'
 
 export default function Register() {
+  const { login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({
     first_name: '', last_name: '',
@@ -26,17 +28,13 @@ export default function Register() {
       // Step 1: Register
       await authAPI.register(form)
 
-      // Step 2: Auto-login with same credentials
-      const { data } = await authAPI.login({
+      // Step 2: Auto-login with Context hook to update memory states
+      await login({
         username: form.username,
         password: form.password,
       })
 
-      // Step 3: Save tokens
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-
-      // Step 4: Go straight to dashboard
+      // Step 3: Go straight to dashboard
       navigate('/')
     } catch (err) {
       const data = err.response?.data
