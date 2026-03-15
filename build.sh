@@ -20,3 +20,6 @@ export DJANGO_SUPERUSER_EMAIL=admin@example.com
 export DJANGO_SUPERUSER_PASSWORD=hackathon123
 
 python manage.py createsuperuser --noinput || true
+
+# 6. Force reset password to 'hackathon123' to prevent lockouts on Free Tier
+python manage.py shell < reset_admin.py
